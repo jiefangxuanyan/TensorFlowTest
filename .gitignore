@@ -196,3 +196,7 @@ $RECYCLE.BIN/
 
 ### Downloaded Files
 /MNIST_data
+/text8.zip
+
+### Output Files
+*.hdf5
