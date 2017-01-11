@@ -10,7 +10,7 @@ def main():
     voc_list, _, words_idx = mine.data()
 
     model = mine.build(len(voc_list), mine.seq_length)
-    model.load_weights("mine-weights-improvement-07-3.8084-smaller.hdf5")
+    model.load_weights("mine-weights-improvement-13-4.4083-smaller.hdf5")
     model.compile(loss='categorical_crossentropy', optimizer='adam')
 
     generate_length = 200

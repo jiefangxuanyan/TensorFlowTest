@@ -1,5 +1,3 @@
-from nltk.tokenize import sent_tokenize, StanfordTokenizer
-import itertools
 from keras.utils import np_utils
 import numpy as np
 from keras.models import Sequential
@@ -8,34 +6,28 @@ from keras.layers import Dense
 from keras.layers import Dropout
 from keras.layers import LSTM
 from keras.callbacks import ModelCheckpoint, EarlyStopping
+import pickle
 
 
-def data():
-    with open("wonderland.txt", "r", encoding="utf-8-sig") as file:
-        words = StanfordTokenizer("/home/lan/stanford-postagger-2016-10-31/stanford-postagger.jar") \
-            .tokenize(file.read().lower())
-    voc_list = sorted(set(words))
-    vocabulary = dict(zip(voc_list, itertools.count()))
-    words_idx = [vocabulary[word] for word in words]
-    return voc_list, vocabulary, words_idx
-
-
-def build(voc_length, seq_length):
-    return Sequential([
-        Embedding(voc_length, 128, input_length=seq_length),
-        # LSTM(256, return_sequences=True),
+def build(seq_length: int, embed: np.array):
+    model = Sequential([
+        Embedding(embed.shape[0], embed.shape[1], input_length=seq_length, weights=[embed]),
+        # LSTM(64, return_sequences=True),
         # Dropout(0.2),
-        LSTM(256),
+        LSTM(128),
         Dropout(0.2),
-        Dense(voc_length, activation='softmax')
+        Dense(embed.shape[0], activation='softmax')
     ])
+    model.layers[0].trainable = False
+    return model
 
 
 seq_length = 100
 
 
 def main():
-    _, vocabulary, words_idx = data()
+    with open("glove_cache.pickle", "rb") as fin:
+        _, vocabulary, words_idx, embed = pickle.load(fin)
 
     X_y_idx = []
 
@@ -47,7 +39,7 @@ def main():
     X = X_y[:, :seq_length]
     y = np_utils.to_categorical(X_y[:, seq_length], len(vocabulary))
 
-    model = build(len(vocabulary), seq_length)
+    model = build(len(vocabulary), embed)
     model.compile(loss='categorical_crossentropy', optimizer='adam')
 
     filepath = "mine-weights-improvement-{epoch:02d}-{val_loss:.4f}-smaller.hdf5"
