@@ -7,10 +7,10 @@ def translate(voc_list, idx):
 
 
 def main():
-    voc_list, _, words_idx = mine.data()
+    voc_list, _, words_idx, embed = mine.data()
 
-    model = mine.build(len(voc_list), mine.seq_length)
-    model.load_weights("mine-weights-improvement-13-4.4083-smaller.hdf5")
+    model = mine.build(mine.seq_length, embed)
+    model.load_weights("mine-weights-improvement-10-4.3625-smaller.hdf5")
     model.compile(loss='categorical_crossentropy', optimizer='adam')
 
     generate_length = 200
